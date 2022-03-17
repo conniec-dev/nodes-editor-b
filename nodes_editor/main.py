@@ -48,20 +48,34 @@ async def create_item(item: DrawflowDiagram):
     new_doc_id = doc_ref.id
     item_dict = item.dict()
     item_dict["id"] = new_doc_id
+    item_dict["date"] = firestore.SERVER_TIMESTAMP
     doc_ref.set(item_dict)
-    print(doc_ref)
     return f"{item_dict['name']} was stored successfully"
+
+# @app.get("/programs")
+# async def list_programs():
+#     doc_ref = db.collection(u'drawflowdiagrams')
+#     docs = doc_ref.stream()
+#     list_of_programs = []
+
+#     for doc in docs:
+#         list_of_programs.append(doc.id)
+
+#     return list_of_programs
 
 @app.get("/programs")
 async def list_programs():
     doc_ref = db.collection(u'drawflowdiagrams')
     docs = doc_ref.stream()
-    list_of_programs = []
+    list_of_programs_id = []
+    list_of_values = []
 
     for doc in docs:
-        list_of_programs.append(doc.id)
+        list_of_programs_id.append(doc.id)
+        list_of_values.append(doc.to_dict())
+        dict_of_programs = dict(zip(list_of_programs_id, list_of_values))
 
-    return list_of_programs
+    return dict_of_programs
 
 @app.get("/programs/{program_id}")
 async def get_program(program_id: str):
@@ -78,4 +92,4 @@ async def get_program(program_id: str):
     if program_id in dict_of_programs:
         return (dict_of_programs[program_id])
     else:
-        "The program doesn't exist"
+        return("The program doesn't exist")
